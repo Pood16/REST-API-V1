@@ -240,6 +240,7 @@ class CartItemsController extends Controller
     }
 
     public function discount() {}
+    
     public function index()
     {
 

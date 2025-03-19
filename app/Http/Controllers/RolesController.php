@@ -129,10 +129,12 @@ class RolesController extends Controller
                 ], 403);
             }
 
+            dd($role);
+            
             // Remove all relationships first
             $role->syncPermissions([]);
             
-            dd($role);
+            
 
             // Detach this role from all users
             $role->users()->detach();
