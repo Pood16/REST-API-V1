@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Api\V2;
 
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use App\Models\Order;
+use App\Models\Payment;
 use App\Http\Controllers\Controller;
 use App\Models\CartItem;
 use App\Models\Product;
@@ -243,4 +246,71 @@ class CartItemsController extends Controller
         $t = $this->calculateTotal(null, 1, 2, 0.4, 2);
         dd($t);
     }
+
+
+    public function checkout(){
+
+        $stripe = new \Stripe\StripeClient(env('STRIPE_KEY_SECRET'));
+        $cartItems = CartItem::with('product')->where('user_id', auth()->user()->id)->get();
+        // dd($cartItems);
+        $lineItems = [];
+        $total = 0;
+        foreach ($cartItems as $item) {
+            $total += $item->product->price * $item->quantity;
+            $lineItems[] = [
+                'price_data' => [
+                    'currency' => 'usd',
+                    'product_data' => [
+                        'name' => $item->product->name,
+                    ],
+                    'unit_amount' => $item->product->price * 100,
+                ],
+                'quantity' => $item->quantity,
+            ];
+        }
+
+        $newOrder = new Order();
+        $newOrder->user_id = auth()->user()->id;
+        $newOrder->total_price = $total * 100;
+        $newOrder->save();
+
+        $session = $stripe->checkout->sessions->create([
+            'line_items' => $lineItems,
+            'mode' => 'payment',
+            'success_url' => route('success', [], true).'?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('cancel', [], true).'?session_id={CHECKOUT_SESSION_ID}',
+        ]);
+
+
+        return response()->json([
+            'sessionId' => $session->id,
+            'url' => $session->url,
+            'message' => 'success'
+        ]);
+
+    }
+
+
+    public function success(Request $request){
+        $sessionId = $request->get('session_id');
+        $stripe = new \Stripe\StripeClient(env('STRIPE_KEY_SECRET'));
+        $session = $stripe->checkout->sessions->retrieve($sessionId);
+
+
+        if(!$session){
+            throw new NotFoundHttpException;
+        }
+        dd($session->order_id);
+        
+        return "success";
+        // return $customer;
+        // try{
+        // }catch(\Exception $e){
+        //     throw new NotFoundHttpException;
+        // }
+
+
+    }
+
+
 }

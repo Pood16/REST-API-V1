@@ -93,3 +93,9 @@ Route::prefix('/v2/cart')->group(function () {
     Route::post('/clear', [CartItemsController::class, 'clear']);
     Route::get('/items', [CartItemsController::class, 'items']);
 });
+
+
+
+Route::post('/checkout', [CartItemsController::class, 'checkout'])->name('checkout')->middleware('auth:sanctum');
+Route::get('/success', [CartItemsController::class, 'success'])->name('success');
+Route::get('/cancel', [CartItemsController::class, 'cancel'])->name('cancel');
