@@ -38,6 +38,10 @@ class AuthController extends Controller
     }
     public function register(Request $request)
     {
+
+        try {
+
+        
         $fields = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -70,7 +74,14 @@ class AuthController extends Controller
             'role' => $user->getRoleNames(),
             'token' => $token,
             'message' => 'User registred successfully'
-        ], 201);
+        ], 201);     }
+
+        catch (\Exception $e) {
+            return response()->json([
+                'message' => 'An error occurred during registration',
+                'status' => 'error' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function login(Request $request)

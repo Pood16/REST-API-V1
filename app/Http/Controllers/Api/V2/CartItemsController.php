@@ -269,10 +269,8 @@ class CartItemsController extends Controller
             ];
         }
 
-        $newOrder = new Order();
-        $newOrder->user_id = auth()->user()->id;
-        $newOrder->total_price = $total * 100;
-        $newOrder->save();
+
+
 
         $session = $stripe->checkout->sessions->create([
             'line_items' => $lineItems,
@@ -280,6 +278,12 @@ class CartItemsController extends Controller
             'success_url' => route('success', [], true).'?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('cancel', [], true).'?session_id={CHECKOUT_SESSION_ID}',
         ]);
+
+        $newOrder = new Order();
+        $newOrder->user_id = auth()->user()->id;
+        $newOrder->total_price = $total * 100;
+        $newOrder->session_id = $session->id;
+        $newOrder->save();
 
 
         return response()->json([
@@ -300,8 +304,8 @@ class CartItemsController extends Controller
         if(!$session){
             throw new NotFoundHttpException;
         }
-        dd($session->order_id);
-        
+        dd($session);
+
         return "success";
         // return $customer;
         // try{
