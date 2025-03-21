@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\Notifiable;
 
 class Order extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, Notifiable;
     protected $fillable = [
         "user_id",
         "total_price",
@@ -15,15 +16,18 @@ class Order extends Model
         "session_id",
     ];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
-    public function items(){
+    public function items()
+    {
         return $this->hasMany(OrderItem::class);
     }
 
-    public function payments(){
+    public function payments()
+    {
         return $this->hasMany(Payment::class);
     }
 }

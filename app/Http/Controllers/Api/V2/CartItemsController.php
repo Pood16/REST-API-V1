@@ -14,7 +14,10 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\V1\Auth\AuthController;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Notifications\newOrderNotification;
+use App\Notifications\NewUserNotification;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Laravel\Sanctum\PersonalAccessToken;
@@ -250,9 +253,10 @@ class CartItemsController extends Controller
         dd($t);
     }
 
-    public function checkout(){
+    public function checkout()
+    {
 
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
+        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
         $userId = auth()->user()->id;
         $cartItem = CartItem::with('product')->where('user_id', $userId)->get();
         if ($cartItem->isEmpty()) {
@@ -277,8 +281,8 @@ class CartItemsController extends Controller
         $session = $stripe->checkout->sessions->create([
             'line_items' => $lineItems,
             'mode' => 'payment',
-            'success_url' => route('success', [], true).'?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('cancel', [], true).'?session_id={CHECKOUT_SESSION_ID}',
+            'success_url' => route('success', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => route('cancel', [], true) . '?session_id={CHECKOUT_SESSION_ID}',
         ]);
         DB::beginTransaction();
         try {
@@ -288,6 +292,10 @@ class CartItemsController extends Controller
                 "total_price" => $total,
                 "session_id" => $session->id
             ]);
+            $notifiable_admin = User::role('super_admin')->first();
+            // $user = User::where('id', 1);
+            $notifiable_admin->notify(new newOrderNotification());
+
             // create oder items
             foreach ($cartItem as $item) {
                 OrderItem::create([
@@ -296,6 +304,7 @@ class CartItemsController extends Controller
                     'price' => $item->product->price,
                 ]);
             }
+
             // Create payment
             $payment = Payment::create([
                 "order_id" => $order->id,
@@ -315,12 +324,12 @@ class CartItemsController extends Controller
             'url' => $session->url,
             'message' => 'success'
         ]);
-
     }
 
-    public function success(Request $request){
+    public function success(Request $request)
+    {
         $sessionId = $request->get('session_id');
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
+        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
         $session = $stripe->checkout->sessions->retrieve($sessionId);
 
 
@@ -332,10 +341,9 @@ class CartItemsController extends Controller
             $cartItems = CartItem::where('user_id', $myOrder->user_id);
             $myPayment->status = "completed";
             $myPayment->save();
-
             $myOrder->status = "in process";
             $myOrder->save();
-            foreach($myOrder->items as $orderItem){
+            foreach ($myOrder->items as $orderItem) {
                 $cartItem = $cartItems->where('product_id', $orderItem->product_id)->first();
                 $product = Product::find($orderItem->product_id);
                 $product->stock -= $cartItem->quantity;
@@ -351,7 +359,8 @@ class CartItemsController extends Controller
             ], 500);
         }
     }
-    public function failure(){
+    public function failure()
+    {
         return response()->json([
             'message' => 'Checkout failed'
         ], 500);
