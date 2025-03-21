@@ -79,7 +79,7 @@ class RolesController extends Controller
         }
 
         $role = Role::findOrFail($id);
-        
+
         // Prevent updates to default roles
         if (in_array($role->name, ['super_admin', 'product_manager', 'user_manager', 'guest'])) {
             return response()->json([
@@ -109,7 +109,7 @@ class RolesController extends Controller
     }
 
 
-    
+
     public function destroy($id)
     {
         if (!auth()->user()->can('delete_users')) {
@@ -121,7 +121,7 @@ class RolesController extends Controller
         try {
             // Use the Spatie model explicitly with the correct namespace
             $role = Role::findOrFail($id);
-            
+
             // Prevent deletion of default roles
             if (in_array($role->name, ['super_admin', 'product_manager', 'user_manager', 'guest'])) {
                 return response()->json([
@@ -131,12 +131,12 @@ class RolesController extends Controller
 
             // Remove all relationships first
             $role->syncPermissions([]);
-            
+
             dd($role);
 
             // Detach this role from all users
             $role->users()->detach();
-            
+
             // Now delete the role
             $role->delete();
 
@@ -169,7 +169,7 @@ class RolesController extends Controller
         ]);
 
         $user = User::findOrFail($data['user_id']);
-        
+
         // Check if trying to modify super_admin (user 1)
         if ($user->id == 1 && auth()->id() != 1) {
             return response()->json([
@@ -184,7 +184,7 @@ class RolesController extends Controller
             'data' => $user->load('roles')
         ], 200);
     }
-    
+
     public function getPermissions()
     {
         if (!auth()->user()->can('view_users')) {
@@ -200,7 +200,7 @@ class RolesController extends Controller
             'data' => $permissions
         ], 200);
     }
-    
+
     public function getUserRoles($userId)
     {
         if (!auth()->user()->can('view_users')) {

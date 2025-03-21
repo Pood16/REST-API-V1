@@ -10,18 +10,18 @@ class CartItem extends Model
 {
     use HasFactory;
 
-    protected $table = 'card_items';
+    protected $table = 'cart_items';
     protected $fillable = [
         'session_id',
         'user_id',
-        'product_id',
+        'product_id', 
         'quantity'
     ];
     public function User(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
- 
+
 
     public function product()
     {
