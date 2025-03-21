@@ -254,7 +254,7 @@ class CartItemsController extends Controller
 
     public function checkout(){
 
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
+        $stripe = new \Stripe\StripeClient(env('STRIPE_KEY_SECRET'));
         $userId = auth()->user()->id;
         $cartItem = CartItem::with('product')->where('user_id', $userId)->get();
         if ($cartItem->isEmpty()) {
@@ -322,7 +322,7 @@ class CartItemsController extends Controller
 
     public function success(Request $request){
         $sessionId = $request->get('session_id');
-        $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
+        $stripe = new \Stripe\StripeClient(env('STRIPE_KEY_SECRET'));
         $session = $stripe->checkout->sessions->retrieve($sessionId);
 
 
@@ -331,7 +331,7 @@ class CartItemsController extends Controller
         try {
             $myOrder = Order::where('session_id', $sessionId)->first();
             $myPayment = Payment::where('transaction_id', $sessionId)->first();
-            $myPayment->status = "paid";
+            $myPayment->status = "completed";
             $myPayment->save();
 
             $myOrder->status = "in process";
@@ -349,5 +349,36 @@ class CartItemsController extends Controller
     }
     public function failure(){
         return "failure";
+    }
+
+
+
+    public function listUserPayments(Request $request)
+    {
+        try {
+            $userId = Auth::id();
+            if (!$userId) {
+                return response()->json(['message' => 'User not authenticated'], 401);
+            }
+
+            $payments = Payment::whereHas('order', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })->with('order')->get();
+
+            $paymentDetails = $payments->map(function ($payment) {
+                return [
+                    'payment_id' => $payment->id,
+                    'order_id' => $payment->order_id,
+                    'payment_type' => $payment->payment_type,
+                    'transaction_id' => $payment->transaction_id,
+                    'status' => $payment->status,
+                    'total_price' => $payment->order->total_price,
+                    'created_at' => $payment->created_at,
+                ];
+            });
+
+        } catch (\Throwable $th) {
+            return response()->json(['message' => 'Error retrieving payments', 'error' => $th->getMessage()], 500);
+        }
     }
 }

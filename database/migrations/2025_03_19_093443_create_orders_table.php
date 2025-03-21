@@ -17,6 +17,7 @@ return new class extends Migration
             $table->decimal('total_price', 10, 2);
             $table->string('session_id');
             $table->enum('status',['pending', 'in process', 'shipped', 'canceled'])->default('pending');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

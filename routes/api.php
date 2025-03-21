@@ -98,3 +98,8 @@ Route::prefix('/v2/cart')->group(function () {
 Route::post('/checkout', [CartItemsController::class, 'checkout'])->name('checkout')->middleware('auth:sanctum');
 Route::get('/success', [CartItemsController::class, 'success'])->name('success');
 Route::get('/cancel', [CartItemsController::class, 'cancel'])->name('cancel');
+
+
+// List all payments
+
+Route::get('/payments', [PaymentController::class, 'index'])->middleware('auth:sanctum');
