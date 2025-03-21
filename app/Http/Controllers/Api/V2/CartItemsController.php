@@ -2,13 +2,7 @@
 
 namespace App\Http\Controllers\Api\V2;
 
-<<<<<<< HEAD
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use App\Models\Order;
-use App\Models\Payment;
-=======
 use App\Helpers\Helpers;
->>>>>>> 47733ee5db6d0d72c238d0eb6c6add290c5e21a3
 use App\Http\Controllers\Controller;
 use App\Models\CartItem;
 use App\Models\OrderItem;
@@ -150,17 +144,10 @@ class CartItemsController extends Controller
                     'session_id' => 'required',
                 ]);
                 $conditions['session_id'] = $validated['session_id'];
-<<<<<<< HEAD
-                $total = $this->calculateTotal(null, $conditions['session_id'],0,0,0);
-            } else {
-                $conditions['user_id'] = PersonalAccessToken::findToken($request->bearerToken())->tokenable->id;
-                $total = $this->calculateTotal($conditions['user_id'], null,0,0,0);
-=======
                 $total = $this->calculateTotal(null, $conditions['session_id'], 0, 0, 0);
             } else {
                 $conditions['user_id'] = PersonalAccessToken::findToken($request->bearerToken())->tokenable->id;
                 $total = $this->calculateTotal($conditions['user_id'], null, 0, 0, 0);
->>>>>>> 47733ee5db6d0d72c238d0eb6c6add290c5e21a3
             }
 
             $items = CartItem::where($conditions)
@@ -265,17 +252,6 @@ class CartItemsController extends Controller
         dd($t);
     }
 
-<<<<<<< HEAD
-
-    public function checkout(){
-
-        $stripe = new \Stripe\StripeClient(env('STRIPE_KEY_SECRET'));
-        $cartItems = CartItem::with('product')->where('user_id', auth()->user()->id)->get();
-        // dd($cartItems);
-        $lineItems = [];
-        $total = 0;
-        foreach ($cartItems as $item) {
-=======
     public function checkout(){
 
         $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
@@ -287,7 +263,6 @@ class CartItemsController extends Controller
         $lineItems = [];
         $total = 0;
         foreach ($cartItem as $item) {
->>>>>>> 47733ee5db6d0d72c238d0eb6c6add290c5e21a3
             $total += $item->product->price * $item->quantity;
             $lineItems[] = [
                 'price_data' => [
@@ -301,32 +276,12 @@ class CartItemsController extends Controller
             ];
         }
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 47733ee5db6d0d72c238d0eb6c6add290c5e21a3
         $session = $stripe->checkout->sessions->create([
             'line_items' => $lineItems,
             'mode' => 'payment',
             'success_url' => route('success', [], true).'?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => route('cancel', [], true).'?session_id={CHECKOUT_SESSION_ID}',
         ]);
-<<<<<<< HEAD
-
-        $newOrder = new Order();
-        $newOrder->user_id = auth()->user()->id;
-        $newOrder->total_price = $total * 100;
-        $newOrder->session_id = $session->id;
-        $newOrder->save();
-
-        $newOrder->status = 'en cours';
-        $newOrder->save();
-
-        CartItem::where('user_id', auth()->user()->id)->delete();
-
-=======
         DB::beginTransaction();
         try {
             // Create order
@@ -357,7 +312,6 @@ class CartItemsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
->>>>>>> 47733ee5db6d0d72c238d0eb6c6add290c5e21a3
         return response()->json([
             'sessionId' => $session->id,
             'url' => $session->url,
@@ -366,31 +320,6 @@ class CartItemsController extends Controller
 
     }
 
-<<<<<<< HEAD
-
-    public function success(Request $request){
-        $sessionId = $request->get('session_id');
-        $stripe = new \Stripe\StripeClient(env('STRIPE_KEY_SECRET'));
-        $session = $stripe->checkout->sessions->retrieve($sessionId);
-
-
-        if(!$session){
-            throw new NotFoundHttpException;
-        }
-        dd($session);
-
-        return "success";
-        // return $customer;
-        // try{
-        // }catch(\Exception $e){
-        //     throw new NotFoundHttpException;
-        // }
-
-
-    }
-
-
-=======
     public function success(Request $request){
         $sessionId = $request->get('session_id');
         $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
@@ -421,5 +350,4 @@ class CartItemsController extends Controller
     public function failure(){
         return "failure";
     }
->>>>>>> 47733ee5db6d0d72c238d0eb6c6add290c5e21a3
 }
