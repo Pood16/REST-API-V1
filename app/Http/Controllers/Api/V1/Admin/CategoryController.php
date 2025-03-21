@@ -13,6 +13,7 @@ class CategoryController extends Controller
      * @OA\Get(
      *     path="/api/v1/admin/categories",
      *     summary="List all categories",
+     *     tags={"Categories"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
@@ -58,6 +59,7 @@ class CategoryController extends Controller
      * @OA\Post(
      *     path="/api/v1/admin/categories",
      *     summary="Create a new category",
+     *     tags={"Categories"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
@@ -128,6 +130,7 @@ class CategoryController extends Controller
      *     path="/api/v1/admin/categories/{category}",
      *     summary="Update an existing category",
      *     security={{"bearerAuth":{}}},
+     *     tags={"Categories"},
      *     @OA\Parameter(
      *         name="category",
      *         in="path",
@@ -224,8 +227,8 @@ class CategoryController extends Controller
      * @OA\Delete(
      *     path="/api/v1/admin/categories/{category}",
      *     summary="Delete a category",
-     *     tags={"Categories"},
      *     security={{"bearerAuth":{}}},
+     *     tags={"Categories"},
      *     @OA\Parameter(
      *         name="category",
      *         in="path",
@@ -255,16 +258,8 @@ class CategoryController extends Controller
      *             @OA\Property(property="status", type="string", example="error 404")
      *         )
      *     ),
-     *     @OA\Response(
-     *         response=400,
-     *         description="Cannot delete category with products",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="message", type="string", example="Cannot delete category with associated products"),
-     *             @OA\Property(property="status", type="string", example="error 400")
-     *         )
-     *     )
      * )
-     */
+    */
 
     public function destroy($id)
     {

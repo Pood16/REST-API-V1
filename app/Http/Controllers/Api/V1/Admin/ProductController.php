@@ -13,7 +13,45 @@ use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
-
+/**
+     * @OA\Get(
+     *     path="/api/products",
+     *     summary="List all products",
+     *     tags={"Products"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="List of all products",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Success"),
+     *             @OA\Property(
+     *                 property="products_list",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer", example=1),
+     *                     @OA\Property(property="name", type="string", example="PlayStation 5"),
+     *                     @OA\Property(property="slug", type="string", example="playstation-5"),
+     *                     @OA\Property(property="description", type="string", example="Next-gen gaming console"),
+     *                     @OA\Property(property="price", type="number", format="float", example=499.99),
+     *                     @OA\Property(property="stock", type="integer", example=15),
+     *                     @OA\Property(property="category_id", type="integer", example=2),
+     *                     @OA\Property(property="created_at", type="string", format="date-time"),
+     *                     @OA\Property(property="updated_at", type="string", format="date-time"),
+     *                     @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true)
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You do not have permission to view products")
+     *         )
+     *     )
+     * )
+     */
     public function index()
     {
 
@@ -31,6 +69,78 @@ class ProductController extends Controller
             'message' => 'Success'
         ], 200);
     }
+
+    /**
+     * @OA\Post(
+     *     path="/api/products",
+     *     summary="Create a new product",
+     *     tags={"Products"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"name", "slug", "price", "stock", "category_id", "images", "primary_index"},
+     *                 @OA\Property(property="name", type="string", example="PlayStation 5"),
+     *                 @OA\Property(property="slug", type="string", example="playstation-5"),
+     *                 @OA\Property(property="description", type="string", example="Next-gen gaming console"),
+     *                 @OA\Property(property="price", type="number", format="float", example=499.99),
+     *                 @OA\Property(property="stock", type="integer", example=15),
+     *                 @OA\Property(property="category_id", type="integer", example=2),
+     *                 @OA\Property(property="primary_index", type="integer", example=0),
+     *                 @OA\Property(
+     *                     property="images[]",
+     *                     type="array",
+     *                     @OA\Items(type="string", format="binary"),
+     *                     description="Product images (can be multiple)"
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Product created successfully",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Product created successfully"),
+     *             @OA\Property(property="product", ref="#/components/schemas/Product"),
+     *             @OA\Property(
+     *                 property="images",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/Image")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You do not have permission to create products")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Validation error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The given data was invalid."),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 @OA\Property(property="name", type="array", @OA\Items(type="string", example="The name field is required.")),
+     *                 @OA\Property(property="slug", type="array", @OA\Items(type="string", example="The slug field is required."))
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Server error",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Failed To create the Product"),
+     *             @OA\Property(property="error", type="string", example="Error message details")
+     *         )
+     *     )
+     * )
+     */
 
 
     public function store(Request $request)
@@ -92,6 +202,45 @@ class ProductController extends Controller
 
         }
     }
+
+    /**
+     * @OA\Get(
+     *     path="/api/products/{id}",
+     *     summary="Get product details",
+     *     tags={"Products"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="Product ID",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Product details retrieved successfully",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             ref="#/components/schemas/Product"
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Unauthorized access",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="You do not have permission to view this product")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Product not found",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="selected product does not exist"),
+     *             @OA\Property(property="status", type="string", example="error 404")
+     *         )
+     *     )
+     * )
+     */
 
 
     public function show($id)

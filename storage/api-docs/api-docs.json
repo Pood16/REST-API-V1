@@ -1,12 +1,15 @@
 {
     "openapi": "3.0.0",
     "info": {
-        "title": "Example for response examples value",
+        "title": "GameXpress API documentation",
         "version": "1.0"
     },
     "paths": {
         "/api/v1/admin/categories": {
             "get": {
+                "tags": [
+                    "Categories"
+                ],
                 "summary": "List all categories",
                 "operationId": "fa6f0548a7728e9a1250bdf25403d1cb",
                 "responses": {
@@ -78,6 +81,9 @@
                 ]
             },
             "post": {
+                "tags": [
+                    "Categories"
+                ],
                 "summary": "Create a new category",
                 "operationId": "776a0d93a69e29d7232b6a849ba8e7d0",
                 "requestBody": {
@@ -203,6 +209,9 @@
         },
         "/api/v1/admin/categories/{category}": {
             "put": {
+                "tags": [
+                    "Categories"
+                ],
                 "summary": "Update an existing category",
                 "operationId": "bcffa489668c0550e140b1fd9d236d9e",
                 "parameters": [
@@ -425,20 +434,266 @@
                                 }
                             }
                         }
-                    },
-                    "400": {
-                        "description": "Cannot delete category with products",
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/products": {
+            "get": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "List all products",
+                "operationId": "eb69b1a866bcf792cd8f81d521e64587",
+                "responses": {
+                    "200": {
+                        "description": "List of all products",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Cannot delete category with associated products"
+                                            "example": "Success"
                                         },
-                                        "status": {
+                                        "products_list": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "PlayStation 5"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "playstation-5"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Next-gen gaming console"
+                                                    },
+                                                    "price": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 499.99
+                                                    },
+                                                    "stock": {
+                                                        "type": "integer",
+                                                        "example": 15
+                                                    },
+                                                    "category_id": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string",
+                                                        "format": "date-time"
+                                                    },
+                                                    "deleted_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized access",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
                                             "type": "string",
-                                            "example": "error 400"
+                                            "example": "You do not have permission to view products"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Products"
+                ],
+                "summary": "Create a new product",
+                "operationId": "c76f25cb441a433ecb9836a9ddf6f0f0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "slug",
+                                    "price",
+                                    "stock",
+                                    "category_id",
+                                    "images",
+                                    "primary_index"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "PlayStation 5"
+                                    },
+                                    "slug": {
+                                        "type": "string",
+                                        "example": "playstation-5"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "example": "Next-gen gaming console"
+                                    },
+                                    "price": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 499.99
+                                    },
+                                    "stock": {
+                                        "type": "integer",
+                                        "example": 15
+                                    },
+                                    "category_id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "primary_index": {
+                                        "type": "integer",
+                                        "example": 0
+                                    },
+                                    "images[]": {
+                                        "description": "Product images (can be multiple)",
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Product created successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Product created successfully"
+                                        },
+                                        "product": {
+                                            "$ref": "#/components/schemas/Product"
+                                        },
+                                        "images": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Image"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Unauthorized access",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "You do not have permission to create products"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The given data was invalid."
+                                        },
+                                        "errors": {
+                                            "properties": {
+                                                "name": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The name field is required."
+                                                    }
+                                                },
+                                                "slug": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "example": "The slug field is required."
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Server error",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Failed To create the Product"
+                                        },
+                                        "error": {
+                                            "type": "string",
+                                            "example": "Error message details"
                                         }
                                     },
                                     "type": "object"
@@ -455,10 +710,97 @@
             }
         }
     },
+    "components": {
+        "schemas": {
+            "Image": {
+                "title": "Product Image",
+                "description": "Image model for a product",
+                "required": [
+                    "id",
+                    "product_id",
+                    "image_url",
+                    "is_primary"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "product_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "image_url": {
+                        "type": "string",
+                        "example": "products/image1.jpg"
+                    },
+                    "is_primary": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "Product": {
+                "title": "Product",
+                "description": "Product model",
+                "required": [
+                    "id",
+                    "name",
+                    "slug",
+                    "price",
+                    "stock",
+                    "category_id"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "PlayStation 5"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "playstation-5"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Next-gen gaming console"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 499.99
+                    },
+                    "stock": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "category_id": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "images": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Image"
+                        }
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
     "tags": [
         {
             "name": "Categories",
             "description": "Categories"
+        },
+        {
+            "name": "Products",
+            "description": "Products"
         }
     ]
 }

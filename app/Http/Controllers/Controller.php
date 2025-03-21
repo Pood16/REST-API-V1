@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
  /**
  * @OA\Info(
+ *
  *     version="1.0",
- *     title="Example for response examples value"
+ *     title="GameXpress API documentation"
  * )
  */
 
