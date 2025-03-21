@@ -330,11 +330,21 @@ class CartItemsController extends Controller
         try {
             $myOrder = Order::where('session_id', $sessionId)->first();
             $myPayment = Payment::where('transaction_id', $sessionId)->first();
-            $myPayment->status = "paid";
+
+
+            $myPayment->status = "completed";
             $myPayment->save();
 
             $myOrder->status = "in process";
             $myOrder->save();
+
+            $myItems = OrderItem::where('order_id', $myOrder->id)->get();
+            foreach ($myItems as $item) {
+                $product = Product::find($item->product_id);
+                $product->stock -= $item->quantity;
+                $product->save();
+            }
+
 
             $cartItems = CartItem::where('user_id', $myOrder->user_id)->delete();
             DB::commit();
