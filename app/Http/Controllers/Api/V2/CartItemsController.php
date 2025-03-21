@@ -285,6 +285,10 @@ class CartItemsController extends Controller
         $newOrder->session_id = $session->id;
         $newOrder->save();
 
+        $newOrder->status = 'en cours';
+        $newOrder->save();
+
+        CartItem::where('user_id', auth()->user()->id)->delete();
 
         return response()->json([
             'sessionId' => $session->id,

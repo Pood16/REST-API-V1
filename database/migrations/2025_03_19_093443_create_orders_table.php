@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->decimal('total_price', 10, 2);
             $table->string('session_id');
-            $table->enum('status',['en attente', 'en cours', 'expédiée', 'annulée'])->default('en attente');
+            $table->enum('status',['pending', 'in process', 'shipped', 'canceled'])->default('pending');
             $table->timestamps();
         });
     }

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('order_id')->constrained();
             $table->string('payment_type');
-            $table->enum('status', ['réussi', 'en attente', 'échoué'])->default('en attente');
+            $table->enum('status', ['paid', 'pending', 'failed'])->default('en attente');
             $table->string('transaction_id');
             $table->timestamps();
         });
