@@ -58,8 +58,6 @@ Route::prefix('/v1/admin')->middleware('auth:sanctum')->group(function () {
     */
     Route::middleware('role:super_admin')->group(function () {
         Route::get('/payments', [PaymentController::class, 'index']);
-
-
         Route::get('/orders', [OrderController::class, 'index']);
         Route::delete('/orders/{id}', [OrderController::class, 'delete']);
         Route::put('/orders/{id}/status', [OrderController::class, 'updateStatus']);

@@ -16,6 +16,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Notifications\newOrderNotification;
 use App\Notifications\NewUserNotification;
+use App\Notifications\orderPlacedNotification;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Auth;
@@ -296,6 +297,8 @@ class CartItemsController extends Controller
             // $user = User::where('id', 1);
             $notifiable_admin->notify(new newOrderNotification());
 
+            $user = auth()->user();
+            $user->notify(new orderPlacedNotification());
             // create oder items
             foreach ($cartItem as $item) {
                 OrderItem::create([
