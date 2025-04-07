@@ -323,9 +323,6 @@ class CartItemsController extends Controller
         $sessionId = $request->get('session_id');
         $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET_KEY'));
         $session = $stripe->checkout->sessions->retrieve($sessionId);
-
-
-
         DB::beginTransaction();
         try {
             $myOrder = Order::where('session_id', $sessionId)->first();
